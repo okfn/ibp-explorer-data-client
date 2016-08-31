@@ -36,4 +36,8 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
+# IDE folder
 .idea/
+
+# Compiled ES5 code for production
+lib/
