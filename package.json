@@ -2,9 +2,11 @@
   "name": "open-budget-indaba-client",
   "version": "1.0.0",
   "description": "A Javascript client for the Indaba API",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register test/*",
+    "compile": "babel -d lib/ src/",
+    "postinstall": "npm run compile",
     "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha -- --report lcovonly --require babel-core/register test/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "repository": {
@@ -18,9 +20,6 @@
   },
   "homepage": "https://github.com/okfn/open-budget-indaba-client#readme",
   "devDependencies": {
-    "babel-cli": "^6.14.0",
-    "babel-core": "^6.14.0",
-    "babel-preset-es2015": "^6.14.0",
     "babel-istanbul": "^0.11.0",
     "chai": "^3.5.0",
     "coveralls": "^2.11.12",
@@ -28,6 +27,9 @@
   },
   "dependencies": {
     "node-fetch": "^1.6.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "babel-cli": "^6.14.0",
+    "babel-core": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0"
   }
 }
