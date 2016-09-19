@@ -33,4 +33,4 @@ These environment variables need to be set to populate a stylesheet:
 
 * **DRIVE_ROOT** - ID of the root where the documents should be searched
 * **STYLESHEET_ID** - ID of the stylesheet where the found documents should be written
-* **PROMISES_NUMBER** - Number of promises (parallel requests) made to google when traversing the tree. This is optional, default is 3.
+
