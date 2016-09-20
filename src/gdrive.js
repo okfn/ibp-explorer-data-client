@@ -5,7 +5,7 @@ import googleAuth from 'google-auth-library'
 
 let GDrive = function () {
 
-  let PROMISES = 3
+  let PROMISES = process.env.PROMISES_NUMBER
   let DRIVE_ROOT = process.env.DRIVE_ROOT
   const SERVICE_CREDENTIALS = JSON.parse(process.env.SERVICE_CREDENTIALS)
   const SCOPES_DRIVE = ['https://www.googleapis.com/auth/drive.metadata.readonly']
@@ -23,15 +23,11 @@ let GDrive = function () {
    *   3)
    * @returns {Promise} Promise resolves an object {files: [...], paths: [...]}
    */
-  function getGDriveDocuments(driveRoot = '', promises = '') {
-    if (driveRoot != '') {
-      DRIVE_ROOT = driveRoot
-    }
-    if (promises != '') {
-      PROMISES = promises
-    }
-    if (SERVICE_CREDENTIALS === '') {
-
+  function getGDriveDocuments() {
+    if (PROMISES === undefined) {
+      PROMISES = 3
+    } else {
+      PROMISES = parseInt(PROMISES)
     }
     return new Promise((resolve, reject) => {
       const auth = getAuth('drive')
