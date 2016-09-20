@@ -22,10 +22,15 @@ In order to use open-budget-indaba-client the following environment variables ne
 
 * **API_BASE** - Base URL for the API
 * **API_TOKEN** - Access token for the API
-* **SERVICE_TOKEN** - Google Service JSON token. You can do ``export SERVICE_TOKEN=`cat <path_to_credentials.json>` ``
-* **DRIVE_ROOT** - ID of the root where the documents should be searched
+* **SERVICE_CREDENTIALS** - Google Service JSON token. You can do ``export SERVICE_CREDENTIALS=`cat <path_to_credentials.json>` ``
+
 
 #### Populating Google Drive Stylesheet
 
-You can populate the stylesheet by running `npm run populate`. You will be prompted to enter the stylesheet id.
-If you want to populate the spreadsheet programmatically you can set the **STYLESHEET_ID** environment variable.
+You can populate the stylesheet by running `npm run populate`. 
+These environment variables need to be set to populate a stylesheet:
+
+
+* **DRIVE_ROOT** - ID of the root where the documents should be searched
+* **STYLESHEET_ID** - ID of the stylesheet where the found documents should be written
+* **PROMISES_NUMBER** - Number of promises (parallel requests) made to google when traversing the tree. This is optional, default is 3.
