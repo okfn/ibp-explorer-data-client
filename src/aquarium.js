@@ -1,5 +1,4 @@
 import _ from 'underscore'
-import drive from '../data/driveDocuments_.json'
 
 
 function getTrackerJSON(countries, documents, snapshots, gdrive) {
