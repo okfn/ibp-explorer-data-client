@@ -1,6 +1,7 @@
 import fetch from 'node-fetch'
 import Filters from './filters'
 import getTrackerJSON from './aquarium'
+import GDrive from './gdrive'
 
 class Indaba {
 
@@ -364,9 +365,10 @@ class Indaba {
     let countries = this.getCountries()
     let documents = this.getDocuments()
     let snapshots = this.getSnapshots()
+    let gdrive = GDrive.getSpreadsheetData('1q84lxNbS9hLVplvMbWHw-U4UqzwKobHJODlPFFy6aHI')
 
-    return Promise.all([countries, documents, snapshots]).then(values => {
-      return getTrackerJSON(values[0], values[1], values[2])
+    return Promise.all([countries, documents, snapshots, gdrive]).then(values => {
+      return getTrackerJSON(values[0], values[1], values[2], values[3].values)
     })
   }
 }
