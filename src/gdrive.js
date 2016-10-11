@@ -234,27 +234,39 @@ let GDrive = function () {
   }
 
   /**
+   * Get spreadsheet with the ID provided in the first argument and the sheet
+   * provided in the second argument.
    *
-   *
-   * @param spreadsheetId
+   * @param spreadsheetId The ID of the spreadsheet
+   * @param sheet Possible values are 'sheet' and 'files'. Default value is 'files'
    */
-  function getSpreadsheetData(spreadsheetId) {
+  function getSpreadsheet(spreadsheetId, sheet = 'files') {
+    if (sheet == 'files') {
+      sheet = 'Sheet1'
+    } else if ( sheet == 'folders') {
+      sheet = 'Sheet2'
+    } else {
+      console.log('You can specify only \'files\' or \'folders\' as second arg')
+      return ;
+    }
     return new Promise((resolve, reject) => {
       const auth = getAuth('sheets')
       const sheets = google.sheets('v4')
       sheets.spreadsheets.values.get({
                                        auth: auth,
                                        spreadsheetId: spreadsheetId,
-                                       range: 'Sheet1',
+                                       range: sheet,
                                      }, function (err, response) {
         if (err) {
           reject('The API returned an error: ' + err);
           return;
         }
+
         resolve(response)
       });
     })
   }
+
 
   /**
    * Create ListValue array from the provided JSON array.
@@ -275,7 +287,7 @@ let GDrive = function () {
 
 
   return {
-    getSpreadsheetData: getSpreadsheetData
+    getSpreadsheet: getSpreadsheet
     , populateSpreadSheet: populateSpreadSheet
   }
 }
