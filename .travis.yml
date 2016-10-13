@@ -13,8 +13,5 @@ env:
   - secure: wWFOGySueB17rVW7+U/GLMTp67cjtNMkGM7btvTvf6ORPN3Fc2wwJif1+zCqp6+v6tlZvvA6tneJaLNXkkySvhuijhDICkdfuBk+rF8GIaVuqawhoWkk8NfL9PakEZtiWyAiuDjPYZnotEIWw/Dzecxw9ck68UQ1LI81GtVSDz+XzDcQvYS6JSn42OTWdyph/9lnJW9u6Gp0684Q5QYLYQiUewlsl6zDXrPE/vn8J0EU+qVqjgJ/oi9tM7VUsVlqDTDNZktpyAZV536X0YPuk73OqLUpppPsbthtU258hkkrTYJwS3nLPJFNhKrfMNgKyijTRITrIXxih5UbZdNycuMYrpAgHLzwmcYihW0PoXXZnqWuta6ClLsUEuJAOEG6Jnmn8F2Z9hG3GRHkvaNWqxOenPsDtGdq8AoX2S/VGRITVCUTYmTvYXFUhS8KYKU+m4BKIaN0bI9dB/LzADoKZH3nSemy2V+1B8I2rvk1wJK1qvbA/JZUgMCpMdqalbOYybVpqHM12LZ7YgR+qVj/i4KmYECij43xnZtOfwAchMmqUnvSJc4NGmjQsDOLu2Lh119Z1D1OlX2yCLUg1IIm+Q+q5d17YWqo0AtRfAMQrug0/ncv1doCl+LbNB3Liq7/n176oGYA/EZABdFb8vus7mtbit0dimYIlt25wfO7x5w=
   - secure: uGZ61ynpghhMq/zH8Jp6R/HreUJe1j5cL/SUFdGcN8E3GmaabZQkMZKLGqzXd7gJeDhZ5JjjdjkkHVR+GbOeRiO3s7f4I9jSleCPEXbnUaJXX4vYzLDUK4yOXh7PIjHILLwhk/cmgLgzMbBNcq6x/S2MCy2P/omzHu+IeMqb9cJwY5BLofy4jEEZK+tfQWCDyI/yVlDxg8HrI22OT3USAuLsp8mwwmyULQD8px2ZBk/oUUM3ipcknEll5SH/BWhqe1DZmnz0DoAw7/PmjR3IWQBcuQQOh2yCyvDJBo8e7AJA6HGD/2TK8/LHOeyh8KgKQp4lT6g/erqOiXXNIDtccbcPlV4K8hj5i7SfT2DVpKpUt7925JGIl23OrmPTkA0J0QYFamcrJ0mog0gINSYTRMtPuuzF7BRD9PZyvgPeJ6RH/BXDJqG0XXwe8DQC7Pa+uEn8Gx6G2masT4P8z1SO7oEdqUdYB47z5w1wI7uzA7y2wQuBfV0qTmCX95+ejGsbZXP2V+6/NUa2uFyiADpupp6ZyRHXPFbqZkuuXUFdM5GqbhUnI4CqBogsrOXieW4uAQZq18KrwZe9tR0HubHtEE0r4xufaVz/pQNxnpeQE75Su+5hMqM+//U1oCv9lCDxPoBpBEbB9FYEPmcDUX4fP9NJaDGkDsrr25SJOpijG+E=
 before_install:
-- if [ "$TRAVIS_PULL_REQUEST" == "true" ]; then openssl aes-256-cbc -K $encrypted_a6c3af12b361_key
-  -iv $encrypted_a6c3af12b361_iv -in googleServiceCredentials.json.enc -out googleServiceCredentials.json
-  -d; fi
-- if [ "$TRAVIS_PULL_REQUEST" == "true" ]; then export SERVICE_CREDENTIALS=`cat googleServiceCredentials.json`;
-  fi
+- if [ "$TRAVIS_PULL_REQUEST" == "true" ]; then openssl aes-256-cbc -K $encrypted_a6c3af12b361_key -iv $encrypted_a6c3af12b361_iv -in googleServiceCredentials.json.enc -out googleServiceCredentials.json -d; fi
+- if [ "$TRAVIS_PULL_REQUEST" == "true" ]; then export SERVICE_CREDENTIALS=`cat googleServiceCredentials.json`; fi
