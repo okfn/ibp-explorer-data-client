@@ -7,7 +7,6 @@ let GDrive = function () {
 
   let PROMISES = process.env.PROMISES_NUMBER
   let DRIVE_ROOT = process.env.DRIVE_ROOT
-  const SERVICE_CREDENTIALS = JSON.parse(process.env.SERVICE_CREDENTIALS)
   const SCOPES_DRIVE = ['https://www.googleapis.com/auth/drive.metadata.readonly']
   const SCOPES_SHEETS = ['https://www.googleapis.com/auth/spreadsheets']
   let FILES = []
@@ -17,11 +16,8 @@ let GDrive = function () {
    * Get the array of json objects containing all documents found in the
    * library
    *
-   * @param driveRoot Optional: ID of the root folder to traverse
-   * @param promises Optional: Number of parallel promises per iteration
-   *   (default
-   *   3)
-   * @returns {Promise} Promise resolves an object {files: [...], paths: [...]}
+   * @returns {Promise} Promise resolves an object like
+   * {files: [...], paths: [...]}. Returns -1 if SERVICE_CREDENTIALS is not set.
    */
   function getGDriveDocuments() {
     if (PROMISES === undefined) {
@@ -31,6 +27,9 @@ let GDrive = function () {
     }
     return new Promise((resolve, reject) => {
       const auth = getAuth('drive')
+      if (auth === -1) {
+        reject("SERVICE_CREDENTIALS environment variable not defined. Please do and rerun.")
+      }
       global.resolveGetDriveDocuments = resolve
       global.rejectGetDriveDocuments = reject
       findFiles(auth)
@@ -47,6 +46,12 @@ let GDrive = function () {
   function getAuth(use) {
     const auth = new googleAuth()
     let jwt = new auth.JWT()
+    if (process.env.SERVICE_CREDENTIALS) {
+      var SERVICE_CREDENTIALS = JSON.parse(process.env.SERVICE_CREDENTIALS);
+    } else {
+      console.log('SERVICE_CREDENTIALS variable not set. Please do.')
+      return -1
+    }
     jwt.fromJSON(SERVICE_CREDENTIALS)
     if (use === 'drive') {
       return jwt.createScoped(SCOPES_DRIVE)
@@ -191,6 +196,10 @@ let GDrive = function () {
    */
   function populateSpreadSheet(spreadsheetId) {
     const auth = getAuth('sheets')
+    if (auth === -1) {
+      console.log("SERVICE_CREDENTIALS environment variable not defined. Please do and rerun.")
+      return
+    }
     const sheets = google.sheets('v4')
     getGDriveDocuments().then((res) => {
       let listArray = createListArray(res.documents)
@@ -234,27 +243,42 @@ let GDrive = function () {
   }
 
   /**
+   * Get spreadsheet with the ID provided in the first argument and the sheet
+   * provided in the second argument.
    *
-   *
-   * @param spreadsheetId
+   * @param spreadsheetId The ID of the spreadsheet
+   * @param sheet Possible values are 'sheet' and 'files'. Default value is 'files'
    */
-  function getSpreadsheetData(spreadsheetId) {
+  function getSpreadsheet(spreadsheetId, sheet = 'files') {
+    if (sheet == 'files') {
+      sheet = 'Sheet1'
+    } else if ( sheet == 'folders') {
+      sheet = 'Sheet2'
+    } else {
+      console.log('You can specify only \'files\' or \'folders\' as second arg')
+      return ;
+    }
     return new Promise((resolve, reject) => {
       const auth = getAuth('sheets')
+      if (auth === -1) {
+        reject("SERVICE_CREDENTIALS environment variable not defined. Please do and rerun.")
+      }
       const sheets = google.sheets('v4')
       sheets.spreadsheets.values.get({
                                        auth: auth,
                                        spreadsheetId: spreadsheetId,
-                                       range: 'Sheet1',
+                                       range: sheet,
                                      }, function (err, response) {
         if (err) {
           reject('The API returned an error: ' + err);
           return;
         }
+
         resolve(response)
       });
     })
   }
+
 
   /**
    * Create ListValue array from the provided JSON array.
@@ -275,7 +299,7 @@ let GDrive = function () {
 
 
   return {
-    getSpreadsheetData: getSpreadsheetData
+    getSpreadsheet: getSpreadsheet
     , populateSpreadSheet: populateSpreadSheet
   }
 }

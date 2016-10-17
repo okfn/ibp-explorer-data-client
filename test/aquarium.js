@@ -5,7 +5,7 @@ describe('Get compiled JSON for the tracker', function () {
   let response
 
   before(function () {
-    this.timeout(8000)
+    this.timeout(30000)
     return Indaba.getTrackerJSON().then((res) => {
       'use strict';
       response = res

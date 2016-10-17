@@ -3,6 +3,7 @@
 import Indaba from '../src/indaba'
 import Filters from '../src/filters'
 import { expect, assert } from 'chai'
+import _ from 'underscore'
 
 describe('Filter', function () {
   describe('fields', function () {
@@ -29,10 +30,17 @@ describe('Filter', function () {
   describe('order', function () {
     this.timeout(3000)
     it("returns object with 'code' field in DESC order", () => {
-      return Indaba.getCountries(Filters().order('code DESC').limit(2))
+      return Indaba.getCountries(Filters().order('code DESC').limit(10))
         .then((res) => {
-          assert(res[0].code.charAt(0).toString() > res[1].code.charAt(0),
-                 'Returned objects not in descending order')
+          let previous
+          _.forEach(res, (country) => {
+            if (!previous) {
+              previous = country.code
+            } else {
+              assert(previous > country.code.charAt(0),
+                     'Returned objects not in descending order')
+            }
+          })
         })
     })
   })

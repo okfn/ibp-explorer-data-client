@@ -266,7 +266,7 @@ describe('Report endpoint', function () {
 describe('Snapshot endpoint', function () {
 
   describe('checkSnapshotExists(id)', function () {
-    this.timeout(3000)
+    this.timeout(7000)
 
     it('returns true with valid id', function () {
       return Indaba.checkSnapshotExists('54353429986cd7727f7721c6')

@@ -365,11 +365,20 @@ class Indaba {
     let countries = this.getCountries()
     let documents = this.getDocuments()
     let snapshots = this.getSnapshots()
-    let gdrive = GDrive.getSpreadsheetData('1q84lxNbS9hLVplvMbWHw-U4UqzwKobHJODlPFFy6aHI')
+    let gdrive = GDrive.getSpreadsheet(process.env.STYLESHEET_ID)
 
     return Promise.all([countries, documents, snapshots, gdrive]).then(values => {
       return getTrackerJSON(values[0], values[1], values[2], values[3].values)
     })
+  }
+
+  /**
+   * Get array list of folder paths and their Google Drive Ids
+   *
+   * @returns {Promise}
+   */
+  getGDriveFolders() {
+    return GDrive.getSpreadsheet(process.env.STYLESHEET_ID, 'folders')
   }
 }
 
