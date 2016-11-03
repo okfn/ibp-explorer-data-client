@@ -8,7 +8,6 @@
     "compile": "babel -d lib/ src/",
     "postinstall": "npm run compile",
     "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha -- --report lcovonly --require babel-core/register test/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
-    "populate": "babel-node ./lib/populateSylesheet.js",
     "upload-base-snapshots": "babel-node ./lib/cli.js upload-base-snapshots",
     "update-snapshots": "babel-node ./lib/cli.js update-snapshots"
   },
