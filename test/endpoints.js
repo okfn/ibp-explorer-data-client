@@ -1,5 +1,6 @@
 'use strict'
 
+import {} from 'dotenv/config'
 import _ from 'lodash'
 import Indaba from '../src/indaba'
 import Filters from '../src/filters'
