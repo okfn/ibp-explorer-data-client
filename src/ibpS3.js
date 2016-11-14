@@ -6,7 +6,6 @@ import deepmerge from 'deepmerge'
 import _ from 'underscore'
 
 const options = {
-  region: process.env.AWS_REGION,
   apiVersion: '2006-03-01',
   params: {
     Bucket: process.env.AWS_BUCKET
@@ -21,7 +20,7 @@ let IbpS3 = function () {
 
   const S3 = new aws.S3(options)
 
-  function updateSnapshots(documents) {
+  function updateSnapshots(documents, countries) {
     let response
     return new Promise((resolve, reject) => {
       getSnapshots().then((currentSnapshots) => {
@@ -45,7 +44,7 @@ let IbpS3 = function () {
           console.log(response)
 
           const newSnapshot = JSON.stringify(
-            currentSnapshots.concat(generateSnapshot(documents)))
+            currentSnapshots.concat(generateSnapshot(documents, countries)))
           let uploadNew = S3.putObject({
                                          Key: params.Key,
                                          Body: newSnapshot
@@ -99,27 +98,30 @@ let IbpS3 = function () {
     })
   }
 
-  function generateSnapshot(documents) {
+  function generateSnapshot(documents, countries) {
     let snapshot = [],
       countrySnap = {},
       countryDocs,
+      countryObj,
       date = new Date().toISOString()
 
-    const countries = _.uniq(_.pluck(documents, 'country'))
+    const countryNames = _.uniq(_.pluck(documents, 'countryCode')).sort()
 
-    _.forEach(countries, (country) => {
-      countryDocs = _.where(documents, { country: country })
+    _.forEach(countryNames, (country) => {
+      countryDocs = _.where(documents, { countryCode: country })
+      countryObj = _.where(countries, { code: country })[0]
+
       _.forEach(countryDocs, (doc) => {
         if (!_.isEmpty(countrySnap)) {
           countrySnap.snapshot =
             deepmerge(countrySnap.snapshot,
-                      getDocumentDetails(doc),
+                      getDocumentDetails(doc, countryObj),
                       { arrayMerge: concatMerge })
         } else {
           countrySnap = {
             code: doc.countryCode,
             date: date,
-            snapshot: getDocumentDetails(doc)
+            snapshot: getDocumentDetails(doc, countryObj)
           }
         }
       })
@@ -162,16 +164,28 @@ let IbpS3 = function () {
     return destinationArray.concat(sourceArray)
   }
 
-  function getDocumentDetails(doc) {
-    return {
-      [doc.year]: {
-        [doc.type]: [
-          {
-            title: doc.title,
-            date_published: doc.date_published,
-            state: getDocumentState(doc)
-          }
-        ]
+  function getDocumentDetails(doc, countryObj) {
+    if (countryObj.obi) {
+      return {
+        [doc.year]: {
+          [doc.type]: [
+            {
+              title: doc.title || doc.filename,
+              state: getDocumentState(doc, countryObj.obi.availability)
+            }
+          ]
+        }
+      }
+    } else {
+      return {
+        [doc.year]: {
+          [doc.type]: [
+            {
+              title: doc.title || doc.filename,
+              state: getDocumentState(doc)
+            }
+          ]
+        }
       }
     }
   }
