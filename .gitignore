@@ -41,3 +41,5 @@ jspm_packages
 
 # Compiled ES5 code for production
 lib/
+
+.env
