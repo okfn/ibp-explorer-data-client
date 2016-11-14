@@ -366,11 +366,16 @@ class Indaba {
     let countries = this.getCountries()
     let documents = this.getDocuments()
     let snapshots = IbpS3.getSnapshots()
-    let gdrive = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID)
+    let gdriveFiles = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID, 'files')
+    let gdriveFolders = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID,
+                                              'folders')
 
-    return Promise.all([countries, documents, snapshots, gdrive]).then(values => {
-      return getTrackerJSON(values[0], values[1], values[2], values[3].values)
-    })
+    return Promise.all(
+      [countries, documents, snapshots, gdriveFiles, gdriveFolders])
+      .then(values => {
+        return getTrackerJSON(values[0], values[1], values[2], values[3].values,
+                              values[4].values)
+      })
   }
 
   /**

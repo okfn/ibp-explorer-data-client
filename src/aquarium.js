@@ -1,21 +1,30 @@
 import _ from 'underscore'
 
-function getTrackerJSON(countries, documents, snapshots, gdrive) {
+function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFolders) {
   countries = _.filter(countries, (country) => {
     return country.obi
   })
   countries = _.sortBy(countries, 'country')
-  const country_index = _.indexOf(gdrive[0], 'country')
+  const country_index = _.indexOf(gdriveFiles[0], 'country')
+  const path_index = _.indexOf(gdriveFolders[0], 'path')
+  const id_index = _.indexOf(gdriveFolders[0], 'id')
   _.each(countries, cleanCountry)
   documents = _.where(documents, { 'approved': true })
   _.each(countries, function (country) {
     const countryDocs = _.where(documents, { countryCode: country.code })
-    const countryGDrive = _.filter(gdrive, (file) => {
+    const countryGDrive = _.filter(gdriveFiles, (file) => {
       return file[country_index] === country.country
     })
-    countryGDrive.unshift(gdrive[0])
+    countryGDrive.unshift(gdriveFiles[0])
     country.documents =
       cleanDocuments(countryDocs, countryGDrive, country.obi.availability);
+
+    let driveCountryId = _.find(gdriveFolders, (folder) => {
+      return folder[path_index] === country.country
+    })
+    if (driveCountryId) {
+      country.driveCountryId = driveCountryId[id_index]
+    }
   })
   _.each(countries, function (country) {
     const countryShots = _.filter(snapshots, function (d) {
