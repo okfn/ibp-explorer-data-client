@@ -13,9 +13,6 @@
     "populate-gdrive-spreadsheet": "babel-node ./lib/cli.js populate-gdrive-spreadsheet",
     "get-all-data": "babel-node ./lib/cli.js get-all-data"
   },
-  "bin": {
-    "ibp-explorer-data-client": "./lib/cli.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/okfn/open-budget-indaba-client.git"
