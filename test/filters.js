@@ -1,5 +1,6 @@
 'use strict'
 
+import {} from 'dotenv/config'
 import Indaba from '../src/indaba'
 import Filters from '../src/filters'
 import { expect, assert } from 'chai'

@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 import Filters from './filters'
-import { getTrackerJSON } from './aquarium'
+import { getTrackerJSON, getSearchJSON } from './aquarium'
 import GDrive from './gdrive'
 import IbpS3 from './ibpS3'
 
@@ -366,11 +366,16 @@ class Indaba {
     let countries = this.getCountries()
     let documents = this.getDocuments()
     let snapshots = IbpS3.getSnapshots()
-    let gdrive = GDrive.getSpreadsheet(process.env.STYLESHEET_ID)
+    let gdriveFiles = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID, 'files')
+    let gdriveFolders = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID,
+                                              'folders')
 
-    return Promise.all([countries, documents, snapshots, gdrive]).then(values => {
-      return getTrackerJSON(values[0], values[1], values[2], values[3].values)
-    })
+    return Promise.all(
+      [countries, documents, snapshots, gdriveFiles, gdriveFolders])
+      .then(values => {
+        return getTrackerJSON(values[0], values[1], values[2], values[3].values,
+                              values[4].values)
+      })
   }
 
   /**
@@ -379,7 +384,17 @@ class Indaba {
    * @returns {Promise}
    */
   getGDriveFolders() {
-    return GDrive.getSpreadsheet(process.env.STYLESHEET_ID, 'folders')
+    return GDrive.getSpreadsheet(process.env.SPREADSHEET_ID, 'folders')
+  }
+
+  getSearchJSON() {
+    let files = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID, 'files')
+    let documents = this.getDocuments()
+    let countries = this.getCountries()
+
+    return Promise.all([files, documents, countries]).then((values) => {
+      return getSearchJSON(values[0].values, values[1], values[2])
+    })
   }
 }
 

@@ -8,7 +8,8 @@ let GDrive = function () {
   let PROMISES = process.env.PROMISES_NUMBER
   let DRIVE_ROOT = process.env.DRIVE_ROOT
   const SCOPES_DRIVE = ['https://www.googleapis.com/auth/drive.metadata.readonly']
-  const SCOPES_SHEETS = ['https://www.googleapis.com/auth/spreadsheets']
+  const SCOPES_SHEETS = ['https://www.googleapis.com/auth/drive.readonly',
+                         'https://www.googleapis.com/auth/spreadsheets']
   let FILES = []
   let FOLDERS = []
 
@@ -21,7 +22,7 @@ let GDrive = function () {
    */
   function getGDriveDocuments() {
     if (PROMISES === undefined) {
-      PROMISES = 3
+      PROMISES = 2
     } else {
       PROMISES = parseInt(PROMISES)
     }
@@ -76,7 +77,7 @@ let GDrive = function () {
                          auth: auth,
                          corpus: 'user',
                          q: query,
-                         pageSize: 500,
+                         pageSize: 1000,
                          spaces: 'drive'
                        }, (err, response) => {
                          if (err) {
@@ -142,30 +143,30 @@ let GDrive = function () {
                                      if (file.path) {
                                        child.country = file.country
                                        child.path = `${file.path}/${child.name}`
-                                       if (file.fiscalYear) {
-                                         child.fiscalYear = file.fiscalYear
-                                       } else if (child.path.split('/').length === 3) {
-                                         child.fiscalYear = child
-                                           .path.split('/')[2]
-                                           .match(/\d+/g)
-                                         if (child.fiscalYear) {
-                                           child.fiscalYear = child.fiscalYear.join()
-                                         } else {
-                                           child.fiscalYear = ""
-                                         }
-                                       }
                                      } else {
-                                       child.country = file.name
-                                       child.path = `${file.name}/${child.name}`
+                                       child.country = file.name.trim()
+                                       child.path = `${child.country}/${child.name.trim()}`
                                      }
                                      foundFolders.push(child)
                                      FOLDERS.push({ path: child.path, id: child.id })
                                    } else {
                                      child.country = file.country
                                      child.path = file.path
-                                     child.fiscalYear = file.fiscalYear
                                      child.parentId = file.id
+                                     child.fiscalYear = ""
+                                     if (child.path.split('/').length > 1) {
+                                       child.type = file.path.split('/')[1].trim()
+                                     }
+                                     if (child.path.split('/').length > 2) {
+                                       child.fiscalYear = file.path
+                                         .split('/')[2]
+                                         .match(/\d+-\d+|\d+/g)
+                                       if (Array.isArray(child.fiscalYear)) {
+                                         child.fiscalYear = child.fiscalYear.join()
+                                       }
+                                     }
                                      delete child.kind
+                                     delete child.mimeType
                                      FILES.push(child)
                                    }
                                  })
