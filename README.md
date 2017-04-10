@@ -1,4 +1,4 @@
-# open-budget-indaba-client
+# ibp-explorer data client
 [![Build Status](https://travis-ci.org/okfn/ibp-explorer-data-client.svg?branch=master)](https://travis-ci.org/okfn/ibp-explorer-data-client)
 [![Coverage Status](https://coveralls.io/repos/github/okfn/ibp-explorer-data-client/badge.svg?branch=master)](https://coveralls.io/github/okfn/ibp-explorer-data-client?branch=master)
 [![Issues](https://img.shields.io/badge/issue-tracker-orange.svg)](https://github.com/okfn/ibp-explorer-data-client/issues)
