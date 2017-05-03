@@ -30,7 +30,7 @@ function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFold
     const countryShots = _.filter(snapshots, function (d) {
       return d.code === country.code;
     });
-    country.snapshots = cleanSnapshots(countryShots);
+    country.snapshots = countryShots;
   });
 
   return countries
@@ -190,7 +190,10 @@ function cleanSites(sites) {
 }
 
 function cleanDocuments(docs, gdriveDocs, availability) {
-  var theDoc
+  var theDoc,
+      docYear,
+      datePublished
+
   docs = _.map(docs, function (doc) {
     theDoc = {
       state: getDocumentState(doc, availability)
@@ -209,6 +212,27 @@ function cleanDocuments(docs, gdriveDocs, availability) {
     } else {
       theDoc.title = doc.title
     }
+
+    // doc.year can be a string or integer
+    if (!isNaN(doc.year) || !isNaN(Number(doc.year))) {
+      docYear = doc.year + ''
+      if (availability[docYear]) {
+          datePublished = availability[docYear][doc.type]['datePublished']
+          if (datePublished) {
+            if (datePublished) {
+                theDoc.date_published = datePublished
+            }
+        }
+      }
+    }
+
+    if (theDoc.state) {
+        if (theDoc.state.toLowerCase() === 'internal' ||
+            theDoc.state.toLowerCase() === 'not produced') {
+            delete theDoc.date_published
+        }
+    }
+
     return theDoc;
   });
   // Turn array of documents into structure like:
@@ -225,23 +249,16 @@ function cleanDocuments(docs, gdriveDocs, availability) {
   return docs;
 }
 
-function cleanSnapshots(snapshots) {
-  snapshots = _.map(snapshots, function (snapshot) {
-    return {
-      'date': snapshot.date,
-      'snapshot': snapshot.snapshot
-    };
-  });
-
-  return snapshots;
-}
-
 function getDocumentState(doc, availability) {
   if (availability) {
     if (isNaN(doc.year) || !availability[doc.year + '']) {
       return getDocumentStateFromDocument(doc)
     } else {
-      return availability[doc.year + ''][doc.type]
+      if (typeof availability[doc.year + ''][doc.type] === 'string') {
+        return availability[doc.year + ''][doc.type]
+      } else {
+        return availability[doc.year + ''][doc.type]['status']
+      }
     }
   } else {
     return getDocumentStateFromDocument(doc)

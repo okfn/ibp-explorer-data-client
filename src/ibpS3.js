@@ -1,8 +1,6 @@
 'use strict'
 
 import aws from 'aws-sdk'
-import { getDocumentState } from './aquarium'
-import deepmerge from 'deepmerge'
 import _ from 'underscore'
 
 const options = {
@@ -20,7 +18,7 @@ let IbpS3 = function () {
 
   const S3 = new aws.S3(options)
 
-  function updateSnapshots(documents, countries) {
+  function updateSnapshots(countries, name, year) {
     let response
     return new Promise((resolve, reject) => {
       getSnapshots().then((currentSnapshots) => {
@@ -44,7 +42,7 @@ let IbpS3 = function () {
           console.log(response)
 
           const newSnapshot = JSON.stringify(
-            currentSnapshots.concat(generateSnapshot(documents, countries)))
+            currentSnapshots.concat(generateSnapshot(countries, name, year, date)))
           let uploadNew = S3.putObject({
                                          Key: params.Key,
                                          Body: newSnapshot
@@ -98,50 +96,44 @@ let IbpS3 = function () {
     })
   }
 
-  function generateSnapshot(documents, countries) {
-    let snapshot = [],
-      countrySnap = {},
-      countryDocs,
-      countryObj,
-      date = new Date().toISOString()
+  function generateSnapshot(countries, name, year, date) {
+    let snapshot = []
+      , countrySnap = {}
 
-    const countryNames = _.uniq(_.pluck(documents, 'countryCode')).sort()
-
-    _.forEach(countryNames, (country) => {
-      countryDocs = _.where(documents, { countryCode: country })
-      countryObj = _.where(countries, { code: country })[0]
-
-      _.forEach(countryDocs, (doc) => {
-        if (!_.isEmpty(countrySnap)) {
-          countrySnap.snapshot =
-            deepmerge(countrySnap.snapshot,
-                      getDocumentDetails(doc, countryObj),
-                      { arrayMerge: concatMerge })
-        } else {
-          countrySnap = {
-            code: doc.countryCode,
-            date: date,
-            snapshot: getDocumentDetails(doc, countryObj)
-          }
+    _.forEach(countries, country => {
+      try {
+        if (!country.obi.availability[year]) {
+          console.log(`${country.country} doesn't contain OBI Availability for ${year}`)
+          return
         }
-      })
-      snapshot.push(countrySnap)
-      countrySnap = {}
+
+        countrySnap = {
+          code: country.code
+          , date: date
+          , name: name
+          , snapshot: country.obi.availability[year]
+        }
+
+        snapshot.push(countrySnap)
+      } catch(err) {
+        console.log(`${country.country} doesn't contain OBI Availability for ${year}`)
+      }
     })
 
     return snapshot
   }
 
-  function setSnapshot(snapshot) {
+  function setSnapshot(countries, name, year) {
     let response
-    snapshot = JSON.stringify(snapshot)
+    const date = new Date().toISOString()
+        , snapshot = generateSnapshot(countries, name, year, date)
+
     return new Promise((resolve, reject) => {
       let setSnapshot = S3.putObject({
-                                       Key: params.Key,
-                                       Body: snapshot
+                                       Key: params.Key
+                                     , Body: JSON.stringify(snapshot)
                                      }).promise()
-
-      setSnapshot.then((res) => {
+      setSnapshot.then(res => {
         response =
           JSON.stringify(res) +
           "\n------------------------------------------------" +
@@ -149,7 +141,7 @@ let IbpS3 = function () {
           "\nSnapshot is located in " + options.params.Bucket + "/" + params.Key
 
         resolve(response)
-      }).catch((err) => {
+      }).catch(err => {
         response =
           JSON.stringify(err) +
           "\n------------------------------------------------" +
@@ -158,36 +150,6 @@ let IbpS3 = function () {
         reject(response)
       })
     })
-  }
-
-  function concatMerge(destinationArray, sourceArray) {
-    return destinationArray.concat(sourceArray)
-  }
-
-  function getDocumentDetails(doc, countryObj) {
-    if (countryObj.obi) {
-      return {
-        [doc.year]: {
-          [doc.type]: [
-            {
-              title: doc.title || doc.filename,
-              state: getDocumentState(doc, countryObj.obi.availability)
-            }
-          ]
-        }
-      }
-    } else {
-      return {
-        [doc.year]: {
-          [doc.type]: [
-            {
-              title: doc.title || doc.filename,
-              state: getDocumentState(doc)
-            }
-          ]
-        }
-      }
-    }
   }
 
   return {

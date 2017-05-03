@@ -11,11 +11,12 @@ const dataFolder = '../data'
 const firstArgument = process.argv[2]
 const secondArgument = process.argv[3]
 
+const rl = readline.createInterface({
+                                      input: process.stdin,
+                                      output: process.stdout
+                                    });
+
 if (firstArgument === 'upload-base-snapshots') {
-  const rl = readline.createInterface({
-                                        input: process.stdin,
-                                        output: process.stdout
-                                      });
   let question =
     "This will overwrite any current snapshots with the" +
     "\ncontents of Indaba snapshots endpoint which was last updated" +
@@ -24,8 +25,37 @@ if (firstArgument === 'upload-base-snapshots') {
 
   rl.question(question, (answer) => {
     if (answer === 'yes') {
-      Indaba.getSnapshots().then((snapshots) => {
-        IbpS3.setSnapshot(snapshots).then((res) => {
+      question = "Please enter the name of the snapshot: "
+      rl.question(question, (name) => {
+        question = "Please enter the OBI Availability year to snapshot: "
+        rl.question(question, (year) => {
+          rl.close()
+
+          Indaba.getCountries().then((countries) => {
+            IbpS3.setSnapshot(countries, name, year).then((res) => {
+              console.log(res)
+            }).catch((err) => {
+              console.log(err)
+            })
+          }).catch((err) => {
+            console.log(err)
+          })
+        })
+      })
+    } else {
+      console.log("Exiting.")
+    }
+  })
+} else if (process.argv[2] === 'update-snapshots') {
+  let question
+
+  question = "Please enter the name of the snapshot: "
+  rl.question(question, (name) => {
+    question = "Please enter the OBI Availability year to snapshot: "
+    rl.question(question, (year) => {
+      rl.close()
+      Indaba.getCountries().then((countries) => {
+        IbpS3.updateSnapshots(countries, name, year).then((res) => {
           console.log(res)
         }).catch((err) => {
           console.log(err)
@@ -33,36 +63,22 @@ if (firstArgument === 'upload-base-snapshots') {
       }).catch((err) => {
         console.log(err)
       })
-    } else {
-      console.log("Exiting.")
-    }
-    rl.close()
-  })
-} else if (process.argv[2] === 'update-snapshots') {
-  let documents = Indaba.getDocuments()
-  let countries = Indaba.getCountries()
-
-  Promise.all([documents, countries]).then((res) => {
-    IbpS3.updateSnapshots(res[0], res[1]).then((res) => {
-      console.log(res)
-    }).catch((err) => {
-      console.log(err)
     })
-  }).catch((err) => {
-    console.log(err)
   })
+
 } else if (firstArgument === 'get-all-data') {
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder)
   }
-
+  rl.close()
   let docs = Indaba.getDocuments()
   let countries = Indaba.getCountries()
   let snapshots = IbpS3.getSnapshots()
   let gdrive = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID)
   let search = Indaba.getSearchJSON()
+  let tracker = Indaba.getTrackerJSON()
 
-  Promise.all([docs, countries, snapshots, gdrive, search]).then((res) => {
+  Promise.all([docs, countries, snapshots, gdrive, search, tracker]).then((res) => {
     fs.writeFileSync(__dirname + '/../data/documents.json',
                      JSON.stringify(res[0]))
     console.log('Documents downloaded and saved in data folder')
@@ -77,6 +93,8 @@ if (firstArgument === 'upload-base-snapshots') {
     console.log('Spreadsheet downloaded and saved in data folder')
     fs.writeFileSync(__dirname + '/../data/search.json', JSON.stringify(res[4]))
     console.log('Search JSON downloaded and saved in data folder')
+    fs.writeFileSync(__dirname + '/../data/tracker.json', JSON.stringify(res[5]))
+    console.log('Tracker JSON downloaded and saved in data folder')
   }).catch((err) => {
     console.log(err)
   })
@@ -86,16 +104,13 @@ if (firstArgument === 'upload-base-snapshots') {
   } else if (secondArgument) {
     GDrive.populateSpreadSheet(secondArgument)
   } else {
-    const rl = readline.createInterface({
-                                          input: process.stdin,
-                                          output: process.stdout
-                                        });
     rl.question('Enter stylesheet id: ', (spreadsheetId) => {
       GDrive.populateSpreadSheet(spreadsheetId)
-      rl.close()
     })
   }
+  rl.close()
 } else if (firstArgument === 'generate-search-json') {
+  rl.close()
   Indaba.getSearchJSON().then((res) => {
     console.log(JSON.stringify(res))
   }).catch((err) => {

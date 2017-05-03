@@ -92,7 +92,7 @@ let GDrive = function () {
                            _.forEach(files, (child) => {
                              if (child.mimeType ===
                                  'application/vnd.google-apps.folder') {
-                               FOLDERS.push({ path: child.name, id: child.id })
+                               FOLDERS.push({ path: child.name.trim(), id: child.id })
                              }
                            })
                            getFiles(auth, files)
