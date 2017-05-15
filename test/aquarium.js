@@ -10,7 +10,7 @@ describe('Get compiled JSON for the tracker', function () {
   let response
 
   before(function () {
-    this.timeout(30000)
+    this.timeout(70000)
     return Indaba.getTrackerJSON().then((res) => {
       'use strict';
       response = res
@@ -30,7 +30,7 @@ describe('Get compiled Search JSON for the explorer', function () {
   let response
 
   before(function () {
-    this.timeout(30000)
+    this.timeout(70000)
     return Indaba.getSearchJSON().then((res) => {
       'use strict';
       response = res
