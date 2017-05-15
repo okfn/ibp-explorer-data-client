@@ -8,7 +8,13 @@ function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFold
   const country_index = _.indexOf(gdriveFiles[0], 'country')
   const path_index = _.indexOf(gdriveFolders[0], 'path')
   const id_index = _.indexOf(gdriveFolders[0], 'id')
-  _.each(countries, cleanCountry)
+  _.each(countries, function (country) {
+    const countryGDrive = _.filter(gdriveFiles, (file) => {
+      return file[country_index] === country.country
+    })
+    countryGDrive.unshift(gdriveFiles[0])
+    return cleanCountry(country, gdriveFiles)
+  })
   documents = _.where(documents, { 'approved': true })
   _.each(countries, function (country) {
     const countryDocs = _.where(documents, { countryCode: country.code })
@@ -39,7 +45,7 @@ function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFold
 
 function getSearchJSON(files, documents, countries) {
   _.forEach(documents, (document) => {
-    document = matchDriveId(document, files)
+    document = matchDriveIdByDoc(document, files)
 
     const country = _.findWhere(countries, { code: document.countryCode })
     if (country.obi) {
@@ -73,9 +79,46 @@ function getSearchJSON(files, documents, countries) {
 
   documents = _.filter(documents, (doc) => {
     return (doc.state === 'Published late' ||
-            doc.state === 'Publicly available') &&
-           (doc.groupParentId || doc.driveId)
+      doc.state === 'Publicly available') &&
+      (doc.groupParentId || doc.driveId)
   })
+
+  _.forEach(countries, (country) => {
+    country = matchDriveIdByCountry(country, files)
+    if (country.obi) {
+      if (country.obi.availability) {
+        _.each(country.obi.availability, (countryDocuments, year) => {
+          _.each(countryDocuments, function (countryDocument, type) {
+            let year_fixed = year.split(" ").splice(-1)[0]
+            if (countryDocument.driveId || countryDocument.groupParentId) {
+              countryDocument.type = type
+              countryDocument.year = year_fixed
+              countryDocument.countryCode = country.code
+              countryDocument.country = country.country
+              if (countryDocument.status === 'Available') {
+                countryDocument.state = 'Publicly available'
+              } else if (countryDocument.status === 'Published Late') {
+                countryDocument.state = 'Published late'
+              }
+
+              delete countryDocument.status
+
+              const found = _.findWhere(documents, {
+                year: countryDocument.year,
+                type: countryDocument.type,
+                countryCode: countryDocument.countryCode,
+              })
+
+              if (!found) {
+                documents.push(countryDocument)
+              }
+            }
+          })
+        })
+      }
+    }
+  })
+
 
   const countryNames = _.uniq(_.pluck(documents, 'country')).sort()
   const documentYears = _.uniq(_.pluck(documents, 'year')).sort()
@@ -90,7 +133,7 @@ function getSearchJSON(files, documents, countries) {
   }
 }
 
-function matchDriveId(document, files) {
+function matchDriveIdByDoc(document, files) {
   const name_index = _.indexOf(files[0], 'name')
   const id_index = _.indexOf(files[0], 'id')
   const parentId_index = _.indexOf(files[0], 'parentId')
@@ -129,6 +172,43 @@ function matchDriveId(document, files) {
   return document
 }
 
+function matchDriveIdByCountry(country, files) {
+  const name_index = _.indexOf(files[0], 'name')
+  const id_index = _.indexOf(files[0], 'id')
+  const parentId_index = _.indexOf(files[0], 'parentId')
+  const fiscalYear_index = _.indexOf(files[0], 'fiscalYear')
+  const country_index = _.indexOf(files[0], 'country')
+  const type_index = _.indexOf(files[0], 'type')
+  // Keys after "December 2016" will always be "{Month} {Year}"
+  const matchWordYear = /[a-zA-Z]+\s\d+/g
+
+  if (country.obi) {
+    if (country.obi.availability) {
+      _.each(country.obi.availability, function (documents, year) {
+        if (year === '2016' || matchWordYear.exec(year)){
+          let year_fixed = year.split(" ").splice(-1)[0]
+          _.each(documents, function (document, documentType) {
+            const filesFound = _.filter(files, (file) => {
+              return ((file[country_index] === country.country) &&
+                     (file[type_index]) === documentType &&
+                     matchYears(year_fixed, file[fiscalYear_index]))
+            })
+            if (filesFound.length === 1) {
+              document.driveId = filesFound[0][id_index]
+              document.title = filesFound[0][name_index]
+            } else if (filesFound.length > 1) {
+              document.groupParentId = filesFound[0][parentId_index]
+              document.title = filesFound[0][name_index]
+            }
+          })
+        }
+      })
+    }
+  }
+
+  return country
+}
+
 function matchYears(docYear, gdriveYear) {
   if (docYear + '' === gdriveYear) {
     return true
@@ -136,21 +216,21 @@ function matchYears(docYear, gdriveYear) {
     const yearRangeLeft = parseInt(gdriveYear.split('-')[0])
     const yearRangeRight = parseInt(gdriveYear.split('-')[1])
     docYear = parseInt(docYear)
-    if (yearRangeLeft <= docYear <= yearRangeRight) {
+    if ((yearRangeLeft <= docYear) && (docYear <= yearRangeRight)) {
       return true
     }
   } else if (docYear.split('-').length > 1) {
     const yearRangeLeft = parseInt(docYear.split('-')[0])
     const yearRangeRight = parseInt(docYear.split('-')[1])
     gdriveYear = parseInt(gdriveYear)
-    if (yearRangeLeft <= gdriveYear <= yearRangeRight) {
+    if ((yearRangeLeft <= gdriveYear) && (gdriveYear <= yearRangeRight)) {
       return true
     }
   } else if (docYear.split('/').length > 1) {
     const yearRangeLeft = parseInt(docYear.split('/')[0])
     const yearRangeRight = parseInt(docYear.split('/')[1])
     gdriveYear = parseInt(gdriveYear)
-    if (yearRangeLeft <= gdriveYear <= yearRangeRight) {
+    if ((yearRangeLeft <= gdriveYear) && (gdriveYear <= yearRangeRight)) {
       return true
     }
   } else {
@@ -158,7 +238,7 @@ function matchYears(docYear, gdriveYear) {
   }
 }
 
-function cleanCountry(country) {
+function cleanCountry(country, gdriveDocs) {
   if (!country) {
     return country;
   }
@@ -172,6 +252,9 @@ function cleanCountry(country) {
       return obi_score;
     });
   }
+
+  country = matchDriveIdByCountry(country, gdriveDocs)
+
   return country;
 }
 
@@ -241,7 +324,7 @@ function cleanDocuments(docs, gdriveDocs, availability) {
   _.each(docs, function (doc, year) {
     _.each(docs[year], function (doc) {
       delete doc.year;
-      doc = matchDriveId(doc, gdriveDocs)
+      doc = matchDriveIdByDoc(doc, gdriveDocs)
     });
     docs[year] = _.groupBy(docs[year], 'type');
   });
