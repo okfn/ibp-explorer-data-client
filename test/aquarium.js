@@ -57,10 +57,12 @@ describe('Get compiled Search JSON for the explorer', function () {
     assert(response.documents, 'Missing documents array')
   })
 
-  it('all documents contain driveId', function () {
-    _.forEach(response.documents, function (search) {
-      assert(search.driveId, 'Missing driveId')
+  it('documents contain driveId', function () {
+    const found = _.find(response.documents, function (document) {
+      return document.driveId
     })
+
+    assert(found, 'Not a single document have driveId.')
   })
 
 })
