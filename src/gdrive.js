@@ -154,15 +154,18 @@ let GDrive = function () {
                                      child.path = file.path
                                      child.parentId = file.id
                                      child.fiscalYear = ""
-                                     if (child.path.split('/').length > 1) {
-                                       child.type = file.path.split('/')[1].trim()
-                                     }
-                                     if (child.path.split('/').length > 2) {
-                                       child.fiscalYear = file.path
-                                         .split('/')[2]
-                                         .match(/\d+-\d+|\d+/g)
-                                       if (Array.isArray(child.fiscalYear)) {
-                                         child.fiscalYear = child.fiscalYear.join()
+                                     child.type = ""
+                                     if (child.path) {
+                                       if (child.path.split('/').length > 1) {
+                                         child.type = file.path.split('/')[1].trim()
+                                       }
+                                       if (child.path.split('/').length > 2) {
+                                         child.fiscalYear = file.path
+                                           .split('/')[2]
+                                           .match(/\d+-\d+|\d+/g)
+                                         if (Array.isArray(child.fiscalYear)) {
+                                           child.fiscalYear = child.fiscalYear.join()
+                                         }
                                        }
                                      }
                                      delete child.kind

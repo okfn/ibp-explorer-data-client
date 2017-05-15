@@ -8,6 +8,10 @@ import readline from 'readline'
 import fs from 'fs'
 
 const dataFolder = '../data'
+if (!fs.existsSync('../data')) {
+  fs.mkdirSync('../data')
+}
+
 const firstArgument = process.argv[2]
 const secondArgument = process.argv[3]
 
