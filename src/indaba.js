@@ -23,6 +23,14 @@ class Indaba {
     }
   }
 
+  updateTokenIfChanged() {
+    const token = process.env.API_TOKEN
+    if (token !== this.optionsGET.headers.Authorization) {
+      this.optionsGET.headers.Authorization = token
+      this.optionsHEAD.headers.Authorization = token
+    }
+  }
+
   // Country endpoints
 
   /**
@@ -34,6 +42,7 @@ class Indaba {
    * @returns {Promise}
    */
   checkCountryExists(id) {
+    this.updateTokenIfChanged()
     return fetch(`${this.baseUrl}/countries/${id}/exists`, this.optionsGET)
       .then((res) => {
         return res.json()
@@ -51,6 +60,7 @@ class Indaba {
    *
    */
   getCountryById(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/countries/${id}${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -67,6 +77,7 @@ class Indaba {
    * @returns {Promise}
    */
   getCountries(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/countries${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -83,6 +94,7 @@ class Indaba {
    * @returns {Promise}
    */
   getCountryFindOne(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/countries/findOne${filterStr}`,
                  this.optionsGET)
@@ -100,6 +112,7 @@ class Indaba {
    * @returns {Promise}
    */
   getCountriesCount(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/countries/count${filterStr}`,
                  this.optionsGET)
@@ -119,6 +132,7 @@ class Indaba {
    * @returns {Promise.<TResult>}
    */
   checkDocumentExists(id) {
+    this.updateTokenIfChanged()
     return fetch(`${this.baseUrl}/documents/${id}/exists`, this.optionsGET)
       .then((res) => {
         return res.json()
@@ -135,6 +149,7 @@ class Indaba {
    * @returns {Promise}
    */
   getDocumentById(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/documents/${id}${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -151,6 +166,7 @@ class Indaba {
    * @returns {Promise}
    */
   getDocuments(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/documents${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -167,6 +183,7 @@ class Indaba {
    * @returns {Promise}
    */
   getDocumentFindOne(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/documents/findOne${filterStr}`,
                  this.optionsGET)
@@ -184,6 +201,7 @@ class Indaba {
    * @returns {Promise}
    */
   getDocumentsCount(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/documents/count${filterStr}`,
                  this.optionsGET)
@@ -202,6 +220,7 @@ class Indaba {
    * @returns {Promise.<TResult>}
    */
   checkReportExists(id) {
+    this.updateTokenIfChanged()
     return fetch(`${this.baseUrl}/reports/${id}/exists`, this.optionsGET)
       .then((res) => {
         return res.json()
@@ -219,6 +238,7 @@ class Indaba {
    */
   //TODO check available filters
   getReportById(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/reports/${id}${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -236,6 +256,7 @@ class Indaba {
    */
   //TODO check available filters
   getReports(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/reports${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -252,6 +273,7 @@ class Indaba {
    * @returns {Promise}
    */
   getReportFindOne(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/reports/findOne${filterStr}`,
                  this.optionsGET)
@@ -269,6 +291,7 @@ class Indaba {
    * @returns {Promise}
    */
   getReportsCount(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/reports/count${filterStr}`,
                  this.optionsGET)
@@ -287,6 +310,7 @@ class Indaba {
    * @returns {Promise.<TResult>}
    */
   checkSnapshotExists(id) {
+    this.updateTokenIfChanged()
     return fetch(`${this.baseUrl}/snapshots/${id}/exists`, this.optionsGET)
       .then((res) => {
         return res.json()
@@ -304,6 +328,7 @@ class Indaba {
    */
   //TODO check available filters
   getSnapshotById(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/snapshots/${id}${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -321,6 +346,7 @@ class Indaba {
    */
   //TODO check available filters
   getSnapshots(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/snapshots${filterStr}`, this.optionsGET)
       .then((res) => {
@@ -337,6 +363,7 @@ class Indaba {
    * @returns {Promise}
    */
   getSnapshotFindOne(id, filter = Filters()) {
+    this.updateTokenIfChanged()
     filterStr = filter.toString()
     return fetch(`${this.baseUrl}/reports/findOne${filterStr}`,
                  this.optionsGET)
@@ -354,6 +381,7 @@ class Indaba {
    * @returns {Promise}
    */
   getSnapshotsCount(filter = Filters()) {
+    this.updateTokenIfChanged()
     const filterStr = filter.toString()
     return fetch(`${this.baseUrl}/reports/count${filterStr}`,
                  this.optionsGET)
@@ -363,6 +391,7 @@ class Indaba {
   }
 
   getTrackerJSON() {
+    this.updateTokenIfChanged()
     let countries = this.getCountries()
     let documents = this.getDocuments()
     let snapshots = IbpS3.getSnapshots()
@@ -388,6 +417,7 @@ class Indaba {
   }
 
   getSearchJSON() {
+    this.updateTokenIfChanged()
     let files = GDrive.getSpreadsheet(process.env.SPREADSHEET_ID, 'files')
     let documents = this.getDocuments()
     let countries = this.getCountries()
