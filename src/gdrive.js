@@ -6,7 +6,7 @@ import googleAuth from 'google-auth-library'
 let GDrive = function () {
 
   let PROMISES = process.env.PROMISES_NUMBER
-  let DRIVE_ROOT = process.env.DRIVE_ROOT
+  let DRIVE_ROOT = process.env.DRIVE_ROOT_ID
   const SCOPES_DRIVE = ['https://www.googleapis.com/auth/drive.metadata.readonly']
   const SCOPES_SHEETS = ['https://www.googleapis.com/auth/drive.readonly',
                          'https://www.googleapis.com/auth/spreadsheets']

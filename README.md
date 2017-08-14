@@ -25,21 +25,26 @@ In order to use ibp-explorer-data-client the following environment variables nee
   * **API_TOKEN** - Access token for the API
 * Google Drive files/folders 
   * **SERVICE_CREDENTIALS** - Google Service JSON token. You can do ``export SERVICE_CREDENTIALS=`cat <path_to_credentials.json>` ``
-  * **DRIVE_ROOT** - Which gdrive folder serves as root when searching for documents
+  * **DRIVE_ROOT_ID** - Which gdrive folder serves as root when searching for documents
 * AWS S3 storage
   * **AWS_ACCESS_KEY_ID** - Your access key
   * **AWS_SECRET_ACCESS_KEY** - Your secret access key
   * **AWS_REGION** - Region where the bucket is
   * **AWS_BUCKET** - Name of the bucket where to store snapshots
 
-#### Populating Google Drive Spreadsheet
 
-You can populate the spreadsheet by running `npm run populate-gdrive-spreadsheet`. 
+#### Budget Document Library Links
+
+Budget Documents are archived in a Google Drive directory, and a Google Sheets document acts as a catalogue to map the location of these documents with their relevant country/dataset. This catalogue is used to create the correct links in the Document Availability section of the Explorer. 
+
+You can populate the spreadsheet by running:
+
+`npm run populate-gdrive-spreadsheet`
+
 These environment variables need to be set to populate a spreadsheet:
 
-
-* **DRIVE_ROOT** - ID of the root where the documents should be searched
-* **SPREADSHEET_ID** - ID of the spreadsheet where the found documents should be written
+* **DRIVE_ROOT_ID** - ID of the root directory in Google Drive where the documents are archived
+* **SPREADSHEET_ID** - ID of the spreadsheet where the found documents are catalogued 
 
 
 #### Creating a snapshot
