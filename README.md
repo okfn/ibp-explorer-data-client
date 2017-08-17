@@ -32,6 +32,8 @@ In order to use ibp-explorer-data-client the following environment variables nee
   * **AWS_REGION** - Region where the bucket is
   * **AWS_BUCKET** - Name of the bucket where to store snapshots
 
+The Indaba `API_TOKEN` is time-limited. When this lib is used by the separate ibp-explorer library, a valid token is refreshed and obtained automatically. See the note below on [how to obtain a token for testing](#running-tests) this library outside of its use with ibp-explorer.
+
 
 #### Budget Document Library Links
 
@@ -54,3 +56,8 @@ Snapshot is the current state of the available documents that is used for displa
 To upload the initial (old) snapshots available from the API run `npm run upload-base-snapshots`
 
 To create a snapshot from the current state of available documents run `npm run update-snapshots`
+
+
+#### Running tests
+
+Tests are run with `npm test`. A valid Indaba API token will need to be added to the test environment for tests to pass. One way to obtain a valid token is to echo out the `process.env.API_TOKEN` when running the `getTrackerJSON` method from the ibp-explorer codebase (this is clearly not a great procedure, but if you want to test, that's how to get a valid token). Once obtained, this can be added to the .env file for local testing, and to the Travis environment. The token is time-limited and will eventually expire.
