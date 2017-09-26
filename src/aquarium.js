@@ -210,6 +210,15 @@ function matchDriveIdByCountry(country, files) {
 }
 
 function matchYears(docYear, gdriveYear) {
+  /*
+  Determine whether docYear matches, or is in the range of, gdriveYear.
+
+  e.g. If docYear is 2016, the following gdriveYear will return true:
+  2016
+  2015-2016
+  2015-2017
+  2016-2017
+  */
   if (docYear + '' === gdriveYear) {
     return true
   } else if (gdriveYear.split('-').length > 1) {
