@@ -17,23 +17,36 @@ function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFold
   })
   documents = _.where(documents, { 'approved': true })
   _.each(countries, function (country) {
-    const countryDocs = _.where(documents, { countryCode: country.code })
-    const countryGDrive = _.filter(gdriveFiles, (file) => {
+    const countryDocs = _.where(documents, { countryCode: country.code });
+    const countryGDrive = _.filter(gdriveFiles, file => {
       return file[country_index] === country.country
-    })
+    });
     countryGDrive.unshift(gdriveFiles[0])
     country.documents =
       cleanDocuments(countryDocs, countryGDrive, country.obi.availability);
 
-    let driveCountryId = _.find(gdriveFolders, (folder) => {
+    // Get a country's top-level report directory ids
+    // Pattern to match top-level country directories like:
+    // 'Argentina/Audit Report', but not 'Argentina/Audit Report/FY 2016', etc.
+    const countryFolderPathPattern = new RegExp(`^${country.country}\/[^\/]+$`, "gi");
+    var countryGDriveFolders = _.filter(gdriveFolders, f => {
+      return f[path_index].match(countryFolderPathPattern);
+    })
+    countryGDriveFolders = _.map(countryGDriveFolders, f => {
+      f[0] = f[0].replace(country.country + '/', '');
+      return f
+    });
+    country.topLevelDirectoryIds = _.object(_.compact(countryGDriveFolders));
+
+    let driveCountryId = _.find(gdriveFolders, folder => {
       return folder[path_index] === country.country
     })
     if (driveCountryId) {
       country.driveCountryId = driveCountryId[id_index]
     }
   })
-  _.each(countries, function (country) {
-    const countryShots = _.filter(snapshots, function (d) {
+  _.each(countries, country => {
+    const countryShots = _.filter(snapshots, d => {
       return d.code === country.code;
     });
     country.snapshots = countryShots;
