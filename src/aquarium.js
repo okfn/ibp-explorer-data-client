@@ -1,6 +1,7 @@
 import _ from 'underscore'
 
 function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFolders) {
+  // console.log(process.env.API_TOKEN);
   countries = _.filter(countries, (country) => {
     return country.obi
   })
@@ -22,6 +23,7 @@ function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFold
       return file[country_index] === country.country
     });
     countryGDrive.unshift(gdriveFiles[0])
+
     country.documents =
       cleanDocuments(countryDocs, countryGDrive, country.obi.availability);
 
@@ -206,12 +208,14 @@ function matchDriveIdByCountry(country, files) {
                      (file[type_index]) === documentType &&
                      matchYears(year_fixed, file[fiscalYear_index]))
             })
-            if (filesFound.length === 1) {
-              document.driveId = filesFound[0][id_index]
-              document.title = filesFound[0][name_index]
-            } else if (filesFound.length > 1) {
-              document.groupParentId = filesFound[0][parentId_index]
-              document.title = filesFound[0][name_index]
+            if (_.isObject(document)) {
+              if (filesFound.length === 1) {
+                document.driveId = filesFound[0][id_index]
+                document.title = filesFound[0][name_index]
+              } else if (filesFound.length > 1) {
+                document.groupParentId = filesFound[0][parentId_index]
+                document.title = filesFound[0][name_index]
+              }
             }
           })
         }
