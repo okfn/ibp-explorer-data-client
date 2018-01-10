@@ -4,10 +4,10 @@
   "description": "A Javascript client for the Indaba API",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register test/*",
+    "test": "mocha --compilers js:babel-core/register tests/*",
     "compile": "babel -d lib/ src/",
     "postinstall": "npm run compile",
-    "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha -- --report lcovonly --require babel-core/register test/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha -- --report lcovonly --require babel-core/register tests/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "upload-base-snapshots": "babel-node ./lib/cli.js upload-base-snapshots",
     "update-snapshots": "babel-node ./lib/cli.js update-snapshots",
     "populate-gdrive-spreadsheet": "babel-node ./lib/cli.js populate-gdrive-spreadsheet",
