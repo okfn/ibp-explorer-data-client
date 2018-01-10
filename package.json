@@ -1,13 +1,13 @@
 {
   "name": "ibp-explorer-data-client",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "A Javascript client for the Indaba API",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register test/*",
+    "test": "mocha --compilers js:babel-core/register tests/*",
     "compile": "babel -d lib/ src/",
     "postinstall": "npm run compile",
-    "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha -- --report lcovonly --require babel-core/register test/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover ./node_modules/.bin/_mocha -- --report lcovonly --require babel-core/register tests/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "upload-base-snapshots": "babel-node ./lib/cli.js upload-base-snapshots",
     "update-snapshots": "babel-node ./lib/cli.js update-snapshots",
     "populate-gdrive-spreadsheet": "babel-node ./lib/cli.js populate-gdrive-spreadsheet",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/okfn/open-budget-indaba-client.git"
+    "url": "git+https://github.com/okfn/ibp-explorer-data-client.git"
   },
   "author": "Damjan Velickovski",
   "license": "ISC",
@@ -27,6 +27,11 @@
     "babel-istanbul": "^0.11.0",
     "chai": "^3.5.0",
     "coveralls": "^2.11.12",
+    "eslint": "^2.13.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "eslint-plugin-import": "^1.10.3",
+    "eslint-plugin-jsx-a11y": "^1.5.5",
+    "eslint-plugin-react": "^5.2.2",
     "mocha": "^3.0.2"
   },
   "dependencies": {
@@ -39,6 +44,7 @@
     "google-auth-library": "^0.9.8",
     "googleapis": "^12.4.0",
     "node-fetch": "^1.6.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "underscore-deep-extend": "^1.1.5"
   }
 }

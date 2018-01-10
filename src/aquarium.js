@@ -1,11 +1,17 @@
 import _ from 'underscore'
+import underscoreDeepExtend from 'underscore-deep-extend'
+
+_.mixin({ deepExtend: underscoreDeepExtend(_) })
+
 
 function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFolders) {
   // console.log(process.env.API_TOKEN);
-  countries = _.filter(countries, (country) => {
-    return country.obi
-  })
+
+  countries = _.filter(countries, (country) => country.obi)
   countries = _.sortBy(countries, 'country')
+
+  countries = cleanCountries(countries)
+
   const country_index = _.indexOf(gdriveFiles[0], 'country')
   const path_index = _.indexOf(gdriveFolders[0], 'path')
   const id_index = _.indexOf(gdriveFolders[0], 'id')
@@ -59,6 +65,9 @@ function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFold
 
 
 function getSearchJSON(files, documents, countries) {
+
+  countries = cleanCountries(countries)
+
   _.forEach(documents, (document) => {
     document = matchDriveIdByDoc(document, files)
 
@@ -146,6 +155,32 @@ function getSearchJSON(files, documents, countries) {
     states: documentStates,
     documents: documents
   }
+}
+
+function cleanCountries(countries) {
+  // Merge entries with the same country code into one country object and
+  // return the updated countries object.
+  const groupedCountries = _.groupBy(countries, 'code')
+  // reduce each group into one merged country object
+  countries = _.map(groupedCountries, countryGroup => {
+    return _.reduce(countryGroup, (memo, countryItem) => {
+      return _.deepExtend(memo, countryItem)
+    })
+  })
+
+  _.each(countries, c => {
+    if (c.obi) {
+      const availability = c.obi.availability
+      _.each(availability, (v, k) => {
+        if (_.has(availability[k], 'Mid-Year-Review')) {
+          availability[k]['Mid-Year Review'] = availability[k]['Mid-Year-Review']
+          delete availability[k]['Mid-Year-Review']
+        }
+      })
+    }
+  })
+
+  return countries
 }
 
 function matchDriveIdByDoc(document, files) {
@@ -302,6 +337,13 @@ function cleanDocuments(docs, gdriveDocs, availability) {
   var theDoc,
       docYear,
       datePublished
+
+  _.each(availability, (v, k) => {
+    if (_.has(availability[k], 'Mid-Year-Review')) {
+      availability[k]['Mid-Year Review'] = availability[k]['Mid-Year-Review']
+      delete availability[k]['Mid-Year-Review']
+    }
+  })
 
   docs = _.map(docs, function (doc) {
     theDoc = {
