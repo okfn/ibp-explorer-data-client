@@ -1,11 +1,25 @@
 import _ from 'underscore'
+import underscoreDeepExtend from 'underscore-deep-extend'
+
+_.mixin({ deepExtend: underscoreDeepExtend(_) })
+
 
 function getTrackerJSON(countries, documents, snapshots, gdriveFiles, gdriveFolders) {
   // console.log(process.env.API_TOKEN);
-  countries = _.filter(countries, (country) => {
-    return country.obi
-  })
+
+  countries = _.filter(countries, (country) => country.obi)
   countries = _.sortBy(countries, 'country')
+
+  // Merge entries with the same country code into one country object and
+  // return the updated countries object.
+  const groupedCountries = _.groupBy(countries, 'code')
+  // reduce each group into one merged country object
+  countries = _.map(groupedCountries, countryGroup => {
+    return _.reduce(countryGroup, (memo, countryItem) => {
+      return _.deepExtend(memo, countryItem)
+    })
+  })
+
   const country_index = _.indexOf(gdriveFiles[0], 'country')
   const path_index = _.indexOf(gdriveFolders[0], 'path')
   const id_index = _.indexOf(gdriveFolders[0], 'id')
