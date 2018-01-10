@@ -303,6 +303,13 @@ function cleanDocuments(docs, gdriveDocs, availability) {
       docYear,
       datePublished
 
+  _.each(availability, (v, k) => {
+    if (_.has(availability[k], 'Mid-Year-Review')) {
+      availability[k]['Mid-Year Review'] = availability[k]['Mid-Year-Review']
+      delete availability[k]['Mid-Year-Review']
+    }
+  })
+
   docs = _.map(docs, function (doc) {
     theDoc = {
       state: getDocumentState(doc, availability)
