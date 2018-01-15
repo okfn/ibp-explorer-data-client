@@ -176,6 +176,10 @@ function cleanCountries(countries) {
           availability[k]['Mid-Year Review'] = availability[k]['Mid-Year-Review']
           delete availability[k]['Mid-Year-Review']
         }
+        if (_.has(availability[k], "Citizen's Budget")) {
+          availability[k]["Citizens Budget"] = availability[k]["Citizen's Budget"]
+          delete availability[k]["Citizen's Budget"]
+        }
       })
     }
   })
